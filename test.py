@@ -40,15 +40,17 @@ class GifterTestCase(unittest.TestCase):
         today = date(2016, 12, 7)
         m_today = m_datetime.date.today
         gifts = self.finite_gifts + self.infinite_gifts
-        selected_gifts = defaultdict(dict)
+        selected_gifts = {}
         for d in range(7, 32):
             m_today.return_value = today
-            for user in range(500):
+            today_gifts = defaultdict(int)
+            for user in range(1000):
                 gift = select_gift(gifts)
+                gift.winners += 1
                 if gift in self.finite_gifts:
                     gift.quantity -= 1
-                    gift.winners += 1
-                    selected_gifts[today][gift] = gift.winners
+                    today_gifts[gift] += 1
+            selected_gifts[today] = today_gifts
             today = today + timedelta(days=1)
 
         pprint(selected_gifts)
