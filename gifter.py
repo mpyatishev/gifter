@@ -32,16 +32,22 @@ def select_gift(gifts):
         return random.choice(infinite_gifts)
 
     probabilities = {
-        g: get_probability_puasson(g) for g in finite_gifts
+        g: get_probability(g) for g in finite_gifts
     }
-    sum_probabilities = sum(p for p in probabilities.values())
+    finite_probability = 1 / sum(p for p in probabilities.values())
+    infinite_probability = 1 - finite_probability
 
     random_value = random.random()
 
-    if random_value < sum_probabilities:
+    if random_value < infinite_probability:
         return random.choice(infinite_gifts)
 
-    gift = sorted(probabilities, key=lambda g: probabilities[g])[0]
+    gift = sorted(
+        probabilities,
+        key=lambda g: probabilities[g] * (
+            float((g.drawing_end - today).days) or 0.05
+        )
+    )[0]
     return gift
 
 
@@ -52,7 +58,7 @@ def get_probability(gift):
     hit_rate = float(gift.winners) / (time_pass or 0.5)
     p = abs(gift.quantity + gift.winners - time_left * hit_rate)
 
-    return ((gift.drawing_end - gift.drawing_start).seconds) / p
+    return p
 
 
 def get_probability_puasson(gift):
